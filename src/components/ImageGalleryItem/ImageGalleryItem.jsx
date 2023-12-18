@@ -1,15 +1,20 @@
 import styles from './ImageGalleryItem.module.css';
 import PropTypes from 'prop-types';
 
-export const ImageGalleryItem = ({ showModal, data }) => {
+const ImageGalleryItem = ({ showModal, data }) => {
   const { tags, webformatURL, largeImageURL } = data;
+
+  const handleClick = () => {
+    showModal({ largeImageURL, tags });
+  };
+
   return (
     <li className={styles.ImageGalleryItem}>
       <img
         className={styles.ImageGalleryItem_image}
         src={webformatURL}
         alt={tags}
-        onClick={() => showModal({ largeImageURL, tags })}
+        onClick={handleClick}
       />
     </li>
   );
@@ -24,3 +29,5 @@ ImageGalleryItem.propTypes = {
     tags: PropTypes.string.isRequired,
   }).isRequired,
 };
+
+export default ImageGalleryItem;

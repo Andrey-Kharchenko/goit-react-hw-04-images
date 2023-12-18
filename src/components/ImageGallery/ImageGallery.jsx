@@ -1,8 +1,8 @@
-import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
+import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import styles from './ImageGallery.module.css'
 import PropTypes from 'prop-types';
 
-export const ImageGallery = ({ gallery, showModal }) => {
+const ImageGallery = ({ gallery, showModal }) => {
     return (
       <>
         <ul className={styles.ImageGallery}>
@@ -24,3 +24,5 @@ export const ImageGallery = ({ gallery, showModal }) => {
 ImageGallery.propTypes = {
   showModal: PropTypes.func.isRequired,
 };
+
+export default ImageGallery;

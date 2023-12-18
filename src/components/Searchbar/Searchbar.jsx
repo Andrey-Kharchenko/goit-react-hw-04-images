@@ -1,43 +1,39 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import styles from './Searchbar.module.css';
 
-export class Searchbar extends Component {
-  state = {
-    value: '',
+const Searchbar = ({ handleInput }) => {
+  const [value, setValue] = useState('');
+
+  const handleChange = ({ target: { value } }) => {
+    setValue(value);
   };
 
-  handleChange = ({ target: { value } }) => {
-    this.setState({ value });
-  };
-
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    this.props.handleInput(this.state.value);
-    this.setState({ value: '' });
+    handleInput(value);
+    setValue('');
   };
 
-  render() {
-    return (
-      <>
-        <header className={styles.Searchbar}>
-          <form className={styles.SearchForm} onSubmit={this.handleSubmit}>
-            <button type="submit" className={styles.SearchFormbutton}>
-              <span className={styles.SearchForm_button_label}>Search</span>
-            </button>
-            <input
-              className={styles.SearchForm_input}
-              type="text"
-              autoComplete="off"
-              autoFocus
-              placeholder="Search images and photos"
-              onChange={this.handleChange}
-              value={this.state.value}
-            />
-          </form>
-        </header>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <header className={styles.Searchbar}>
+        <form className={styles.SearchForm} onSubmit={handleSubmit}>
+          <button type="submit" className={styles.SearchFormbutton}>
+            <span className={styles.SearchForm_button_label}>Search</span>
+          </button>
+          <input
+            className={styles.SearchForm_input}
+            type="text"
+            autoComplete="off"
+            autoFocus
+            placeholder="Search images and photos"
+            onChange={handleChange}
+            value={value}
+          />
+        </form>
+      </header>
+    </>
+  );
+};
 
-
+export default Searchbar;

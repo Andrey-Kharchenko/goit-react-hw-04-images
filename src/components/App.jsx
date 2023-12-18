@@ -1,95 +1,94 @@
-import { Component } from 'react';
-import { Searchbar } from './Searchbar/Searchbar';
-import { ImageGallery } from './ImageGallery/ImageGallery';
-import { Button } from './Button/Button';
-import { Loader } from './Loader/Loader';
-import { Modal } from './Modal/Modal';
-import { getImage } from 'services/api';
+import { useState, useEffect } from 'react';
+import Searchbar from './Searchbar/Searchbar';
+import ImageGallery from './ImageGallery/ImageGallery';
+import Button from './Button/Button';
+import Loader from './Loader/Loader';
+import Modal from './Modal/Modal';
+import getImage from 'services/api';
 import styles from './App.module.css';
 
-export class App extends Component {
-  state = {
-    page: 1,
-    searchText: '',
-    isLoading: false,
-    isShowModal: false,
-    modalShow: {},
-    loadMore: false,
-    gallery: [],
-  };
+const App = () => {
+  const [page, setPage] = useState(1);
+  const [searchText, setSearchText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [modalShow, setModalShow] = useState({});
+  const [loadMore, setLoadMore] = useState(false);
+  const [gallery, setGallery] = useState([]);
 
-  async componentDidUpdate(_, prevState) {
-    const { searchText, page } = this.state;
+  useEffect(() => {
+    const fetchData = async () => {
+      if (searchText === '') return;
 
-    if (prevState.searchText !== searchText) {
-      this.setState({
-        isLoading: true,
-        loadMore: false,
-        gallery: [],
-        page: 1,
-      });
+      setIsLoading(true);
+      setLoadMore(false);
+      setGallery([]);
+      setPage(1);
 
       const newGallery = await getImage(searchText, 1);
 
       if (newGallery.length > 0) {
-        this.setState({
-          gallery: newGallery,
-          isLoading: false,
-          loadMore: newGallery.length >= 12,
-        });
+        setGallery(newGallery);
+        setIsLoading(false);
+        setLoadMore(newGallery.length >= 12);
       } else {
-        this.setState({
-          isLoading: false,
-          loadMore: false,
-        });
+        setIsLoading(false);
+        setLoadMore(false);
       }
-    }
+    };
 
-    if (prevState.page !== page) {
+    fetchData();
+  }, [searchText]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (page === 1 || searchText === '') return;
+
       const newGallery = await getImage(searchText, page);
 
-      this.setState(prevState => ({
-        gallery: [...prevState.gallery, ...newGallery],
-        isLoading: false,
-        loadMore: newGallery.length >= 12,
-      }));
-    }
-  }
+      setGallery(prevGallery => [...prevGallery, ...newGallery]);
 
-  handleInput = async searchText => {
-    this.setState({ searchText });
+      setIsLoading(false);
+      setLoadMore(newGallery.length >= 12);
+    };
+
+    fetchData();
+  }, [page, searchText]);
+
+  const handleInput = async searchText => {
+    setPage(1);
+    setSearchText(searchText);
   };
 
-  showModal = modalShow => {
-    this.setState({ isShowModal: true });
-    this.setState({ modalShow });
+  const showModal = modalShow => {
+    setIsShowModal(true);
+    setModalShow(modalShow);
   };
 
-  closeModal = () => {
-    this.setState({ isShowModal: false });
+  const closeModal = () => {
+    setIsShowModal(false);
   };
 
-  handleLoadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const handleLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  render() {
-    const { isLoading, loadMore, isShowModal, modalShow, gallery } = this.state;
-    return (
-      <div className={styles.App}>
-        <Searchbar handleInput={this.handleInput} />
-        {isLoading ? (
-          <Loader />
-        ) : (
-          <ImageGallery showModal={this.showModal} gallery={gallery} />
-        )}
-        {isShowModal && (
-          <Modal closeModal={this.closeModal} img={modalShow}></Modal>
-        )}
-        {loadMore && <Button onClick={this.handleLoadMore} />}
-      </div>
-    );
-  }
-}
+  return (
+    <div className={styles.App}>
+      <Searchbar handleInput={handleInput} />
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <>
+          {gallery.length > 0 && (
+            <ImageGallery showModal={showModal} gallery={gallery} />
+          )}
+          {isShowModal && <Modal closeModal={closeModal} img={modalShow} />}
+          {loadMore && <Button onClick={handleLoadMore} />}
+        </>
+      )}
+    </div>
+  );
+};
+
+export default App;
